@@ -1,11 +1,13 @@
 import { LocalPhotoStorage } from "./local-photo-storage";
 import { R2PhotoStorage } from "./r2-photo-storage";
+import { DbPhotoStorage } from "./db-photo-storage";
 
 // Storage abstraction for event photo binaries. Every caller in this app
-// talks to this interface, never to a concrete implementation directly — the
-// two implementations are local disk (dev, or a host with a real persistent
-// volume) and Cloudflare R2 (production hosts without one, e.g. Render
-// without a paid Disk add-on). Server-only (uses Node fs / network).
+// talks to this interface, never to a concrete implementation directly.
+// Three backends: local disk (dev, or a host with a real persistent volume),
+// Cloudflare R2 (object storage, for hosts without a volume), and Postgres
+// (DbPhotoStorage — a zero-new-account fallback that piggybacks on the
+// app's existing database when neither of the above is available). Server-only.
 export interface PhotoStorage {
   /** Persists a buffer under `key` (e.g. "eventId/photoId/original.jpg"). */
   save(key: string, data: Buffer): Promise<void>;
@@ -28,9 +30,19 @@ function r2Configured(): boolean {
   );
 }
 
+function resolveBackend(): PhotoStorage {
+  // Explicit opt-in wins outright — set PHOTO_STORAGE_BACKEND=db (or "r2" /
+  // "local") when you want to force a specific backend regardless of what
+  // else looks configured.
+  const explicit = process.env.PHOTO_STORAGE_BACKEND;
+  if (explicit === "db") return new DbPhotoStorage();
+  if (explicit === "r2") return new R2PhotoStorage();
+  if (explicit === "local") return new LocalPhotoStorage();
+
+  return r2Configured() ? new R2PhotoStorage() : new LocalPhotoStorage();
+}
+
 export function getPhotoStorage(): PhotoStorage {
-  if (!instance) {
-    instance = r2Configured() ? new R2PhotoStorage() : new LocalPhotoStorage();
-  }
+  if (!instance) instance = resolveBackend();
   return instance;
 }

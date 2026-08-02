@@ -136,3 +136,15 @@ model PhotoFace {
 
   @@index([photoId])
 }
+
+// Backs DbPhotoStorage (lib/storage/db-photo-storage.ts) — a fallback photo
+// storage implementation for hosts with no persistent disk and no object
+// storage budget. `key` mirrors the same "eventId/photoId/name" keys used by
+// the local-disk and R2 backends, so callers never know or care which
+// backend is active. Fine at small/moderate event-photo volumes; a real
+// object store is the better choice at real scale.
+model PhotoBlob {
+  key       String   @id
+  data      Bytes
+  createdAt DateTime @default(now())
+}
