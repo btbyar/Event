@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum GuestStatus {
+  NOT_ARRIVED
+  ARRIVED
+  LATE
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+  events       Event[]
+}
+
+model Event {
+  id                   String      @id @default(cuid())
+  name                 String
+  description          String?
+  location             String?
+  startsAt             DateTime
+  lateThresholdMinutes Int         @default(15)
+  status               EventStatus @default(DRAFT)
+  createdAt            DateTime    @default(now())
+
+  createdById String
+  createdBy   AdminUser @relation(fields: [createdById], references: [id])
+
+  tables      Table[]
+  guests      Guest[]
+  eventPhotos EventPhoto[]
+}
+
+model Table {
+  id       String @id @default(cuid())
+  label    String
+  capacity Int
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  guests Guest[]
+
+  @@unique([eventId, label])
+}
+
+model Guest {
+  id             String      @id @default(cuid())
+  fullName       String
+  normalizedName String
+  invitationCode String
+  phone          String?
+  email          String?
+  seatNumber     Int?
+  status         GuestStatus @default(NOT_ARRIVED)
+  checkedInAt    DateTime?
+  createdAt      DateTime    @default(now())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  tableId String?
+  table   Table?  @relation(fields: [tableId], references: [id], onDelete: SetNull)
+
+  checkIns CheckInLog[]
+
+  @@unique([eventId, invitationCode])
+  @@unique([eventId, tableId, seatNumber])
+  @@index([eventId, normalizedName])
+}
+
+model CheckInLog {
+  id          String   @id @default(cuid())
+  checkedInAt DateTime @default(now())
+  source      String
+
+  guestId String
+  guest   Guest  @relation(fields: [guestId], references: [id], onDelete: Cascade)
+}
+
+// A guest-facing event photo uploaded by an admin. Deliberately no link to any
+// Guest record: face matching is computed live per selfie request and never
+// persisted, so deleting an EventPhoto (cascading to its PhotoFace rows, plus
+// the on-disk files) is the complete story for erasing biometric data.
+model EventPhoto {
+  id           String    @id @default(cuid())
+  storageKey   String
+  thumbnailKey String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  width        Int
+  height       Int
+  processedAt  DateTime?
+  faceCount    Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  faces PhotoFace[]
+
+  @@index([eventId])
+  @@index([eventId, processedAt])
+}
+
+// One detected face within an EventPhoto. `embedding` is a 128-d face
+// descriptor used only for one-shot similarity comparison against an
+// incoming guest selfie embedding — never linked to a guest identity.
+model PhotoFace {
+  id        String   @id @default(cuid())
+  embedding Float[]
+  box       Json
+  createdAt DateTime @default(now())
+
+  photoId String
+  photo   EventPhoto @relation(fields: [photoId], references: [id], onDelete: Cascade)
+
+  @@index([photoId])
+}

@@ -1,0 +1,51 @@
+{
+  "name": "event",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "postinstall": "node scripts/copy-model-assets.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@react-pdf/renderer": "^4.5.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-backend-wasm": "^4.22.0",
+    "@vladmandic/face-api": "^1.7.15",
+    "bcryptjs": "^3.0.3",
+    "exceljs": "^4.4.0",
+    "jose": "^6.2.7",
+    "jszip": "^3.10.1",
+    "lucide-react": "^1.28.0",
+    "next": "16.2.12",
+    "next-auth": "^5.0.0-beta.32",
+    "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sharp": "^0.35.3",
+    "swr": "^2.4.2",
+    "xlsx": "^0.18.5",
+    "zod": "^4.4.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.1",
+    "typescript": "^5"
+  }
+}
