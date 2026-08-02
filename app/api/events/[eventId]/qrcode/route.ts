@@ -13,7 +13,14 @@ export async function GET(
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
-  const url = `${req.nextUrl.origin}/e/${eventId}`;
+  // Behind a reverse proxy (Render, Railway, etc.) the request's own origin
+  // can resolve to an internal address like "localhost" rather than the
+  // public domain, producing QR codes that only work from inside the host's
+  // network. NEXT_PUBLIC_APP_URL is the reliable source of truth when set;
+  // req.nextUrl.origin is only trustworthy for local dev, where there's no
+  // proxy in between.
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+  const url = `${baseUrl}/e/${eventId}`;
   const png = await QRCode.toBuffer(url, { width: 512, margin: 2 });
 
   const headers = new Headers({ "Content-Type": "image/png" });
