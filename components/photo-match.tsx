@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Bookmark, Camera, Download, Images, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { useI18n } from "@/components/i18n-provider";
 import type { Dictionary, PhotoErrorCode } from "@/lib/i18n/dictionaries";
@@ -448,17 +449,19 @@ export function PhotoMatch({ eventId }: { eventId: string }) {
         </div>
       )}
 
-      {lightboxIndex !== null && (
-        <Lightbox
-          matches={matches}
-          index={lightboxIndex}
-          eventId={eventId}
-          token={token}
-          t={t}
-          onClose={() => setLightboxIndex(null)}
-          onNavigate={setLightboxIndex}
-        />
-      )}
+      {lightboxIndex !== null &&
+        createPortal(
+          <Lightbox
+            matches={matches}
+            index={lightboxIndex}
+            eventId={eventId}
+            token={token}
+            t={t}
+            onClose={() => setLightboxIndex(null)}
+            onNavigate={setLightboxIndex}
+          />,
+          document.body,
+        )}
     </>
   );
 }

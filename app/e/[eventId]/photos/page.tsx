@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { PhotoMatch } from "@/components/photo-match";
+import { PhotosView } from "@/components/photos-view";
 import { GuestShell } from "@/components/guest-shell";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { getDictionary } from "@/lib/i18n/server";
@@ -34,7 +34,7 @@ export default async function GuestPhotosPage({
 
       <main className="flex flex-1 flex-col justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto w-full max-w-md">
-          <PhotoMatch eventId={event.id} />
+          <PhotosView eventId={event.id} />
         </div>
       </main>
     </GuestShell>

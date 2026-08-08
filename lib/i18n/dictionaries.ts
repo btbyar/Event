@@ -272,6 +272,16 @@ export interface Dictionary {
     startOver: string;
   };
   photoErrors: Record<PhotoErrorCode, string>;
+  photoGallery: {
+    tabMine: string;
+    tabAll: string;
+    loadMore: string;
+    loading: string;
+    noPhotosYet: string;
+    selectedCount: (n: number) => string;
+    downloadSelected: (n: number) => string;
+    downloadingSelected: string;
+  };
   notFoundPage: {
     title: string;
     message: string;
@@ -557,6 +567,16 @@ const en: Dictionary = {
     tokenExpired: "Your session expired — please take a new selfie.",
     networkError: "Can't reach the server. Check your connection and try again.",
     unknownError: "Something went wrong.",
+  },
+  photoGallery: {
+    tabMine: "My photos",
+    tabAll: "All photos",
+    loadMore: "Load more",
+    loading: "Loading photos…",
+    noPhotosYet: "No photos uploaded yet. Check back later.",
+    selectedCount: (n) => `${n} selected`,
+    downloadSelected: (n) => `Download ${n} photo${n === 1 ? "" : "s"}`,
+    downloadingSelected: "Preparing download…",
   },
   notFoundPage: {
     title: "We couldn't find that event",
@@ -850,6 +870,16 @@ const mn: Dictionary = {
     tokenExpired: "Таны харилцан үйлдэл хугацаа дууссан — шинэ сэлфи авна уу.",
     networkError: "Серверт холбогдож чадсангүй. Холболтоо шалгаад дахин оролдоно уу.",
     unknownError: "Ямар нэг зүйл буруу боллоо.",
+  },
+  photoGallery: {
+    tabMine: "Миний зураг",
+    tabAll: "Бүх зураг",
+    loadMore: "Дараагийн зургууд",
+    loading: "Зургуудыг ачааллаж байна…",
+    noPhotosYet: "Одоогоор зураг байршуулаагүй байна. Дараа дахин орж үзнэ үү.",
+    selectedCount: (n) => `${n} зураг сонгосон`,
+    downloadSelected: (n) => `${n} зургийг татах`,
+    downloadingSelected: "Бэлтгэж байна…",
   },
   notFoundPage: {
     title: "Энэ арга хэмжээг олсонгүй",
